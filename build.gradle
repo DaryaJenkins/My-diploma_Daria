@@ -1,19 +1,56 @@
 plugins {
     id 'java'
+    id "io.freefair.lombok" version "8.2.2"
+    id 'io.qameta.allure' version '2.11.2'
 }
 
 group = 'ru.netology'
 version = '1.0-SNAPSHOT'
+
+sourceCompatibility = 11
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+allure {
+    version = '2.20.1'
+    useJUnit5 {
+        version = '2.20.1'
+    }
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    // JUnit5 для написания автотестов
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.6.1'
+
+    // Для работы с базами данных MySQL и PostgreSQL
+    testImplementation 'mysql:mysql-connector-java:8.0.30'
+    testImplementation 'org.postgresql:postgresql:42.6.0'
+    testImplementation 'commons-dbutils:commons-dbutils:1.7'
+
+    // Selenide для взаимодействия с элементами UI в браузере
+    testImplementation 'com.codeborne:selenide:6.17.2'
+
+    // Faker для генерации тестовых данных
+    testImplementation 'com.github.javafaker:javafaker:1.0.2'
+
+    // Lombok для сокращения кода
+    testCompileOnly 'org.projectlombok:lombok:1.18.36'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
+
+    // Allure для красивого отчёта
+    testImplementation 'io.qameta.allure:allure-selenide:2.20.1'
 }
 
 test {
     useJUnitPlatform()
+
+    // Headless-режим для запуска автотестов без открытия браузера
+    systemProperty 'selenide.headless', System.getProperty('selenide.headless')
+
+    // Для подключения к базе данных
+    systemProperty 'db.url', System.getProperty('db.url', "jdbc:mysql://localhost:3306/app")
 }
