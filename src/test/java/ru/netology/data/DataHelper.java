@@ -10,9 +10,9 @@ public class DataHelper {
 
     private static final Faker faker = new Faker(new Locale("en"));
     private static final Random random = new Random();
-    private static final int currentYear = java.time.Year.now().getValue() % 100;
 
-    private DataHelper() {}
+    private DataHelper() {
+    }
 
     @Value
     public static class CardInfo {
@@ -27,8 +27,14 @@ public class DataHelper {
         return String.format("%02d", 1 + random.nextInt(12));
     }
 
+    private static String generateValidYear() {
+        int minYear = 26;
+        return String.format("%02d", minYear + random.nextInt(5));
+    }
+
     private static String generateExpiredYear() {
-        return String.valueOf(currentYear - 2);
+        int minYear = 24;
+        return String.format("%02d", minYear - random.nextInt(3));
     }
 
     private static String generateHolder() {
@@ -39,36 +45,217 @@ public class DataHelper {
         return String.format("%03d", random.nextInt(1000));
     }
 
-    public static CardInfo generateValidApproveCard() {
-        return new CardInfo("4444 4444 4444 4441",
+    public static CardInfo getApprovedCard() {
+        return new CardInfo(
+                "4444444444444441",
                 generateMonth(),
-                String.valueOf(currentYear),
+                generateValidYear(),
                 generateHolder(),
-                generateCvv());
+                generateCvv()
+        );
     }
 
-    public static CardInfo generateValidDeclineCard() {
-        return new CardInfo("4444 4444 4444 4442",
+    public static CardInfo getDeclinedCard() {
+        return new CardInfo(
+                "4444444444444442",
                 generateMonth(),
-                String.valueOf(currentYear),
+                generateValidYear(),
                 generateHolder(),
-                generateCvv());
+                generateCvv()
+        );
     }
 
-    public static CardInfo generateInvalidCardNumber() {
-        String number = faker.number().digits(15);
-        return new CardInfo(number,
-                generateMonth(),
-                String.valueOf(currentYear),
-                generateHolder(),
-                generateCvv());
+    private static String getAnyValidCardNumber() {
+        return random.nextBoolean() ? "4444444444444441" : "4444444444444442";
     }
 
-    public static CardInfo generateExpiredCard() {
-        return new CardInfo("4444 4444 4444 4441",
+    public static CardInfo getCardNumberWith15Digits() {
+        return new CardInfo(
+                faker.number().digits(15),
+                generateMonth(),
+                generateValidYear(),
+                generateHolder(),
+                generateCvv()
+        );
+    }
+
+    public static CardInfo getCardNumberWith17Digits() {
+        return new CardInfo(
+                faker.number().digits(17),
+                generateMonth(),
+                generateValidYear(),
+                generateHolder(),
+                generateCvv()
+        );
+    }
+
+    public static CardInfo getCardNumberWithLetters() {
+        return new CardInfo(
+                "ABCD #### #### ####",
+                generateMonth(),
+                generateValidYear(),
+                generateHolder(),
+                generateCvv()
+        );
+    }
+
+    public static CardInfo getCardNumberWithSymbols() {
+        return new CardInfo(
+                "^%!$ #### #### ####",
+                generateMonth(),
+                generateValidYear(),
+                generateHolder(),
+                generateCvv()
+        );
+    }
+
+    public static CardInfo getCardWithEmptyNumber() {
+        return new CardInfo(
+                "",
+                generateMonth(),
+                generateValidYear(),
+                generateHolder(),
+                generateCvv()
+        );
+    }
+
+    public static CardInfo getCardWithWrongMonth() {
+        return new CardInfo(
+                getAnyValidCardNumber(),
+                faker.letterify("??"),
+                generateValidYear(),
+                generateHolder(),
+                generateCvv()
+        );
+    }
+
+    public static CardInfo getCardWithEmptyMonth() {
+        return new CardInfo(
+                getAnyValidCardNumber(),
+                "",
+                generateValidYear(),
+                generateHolder(),
+                generateCvv()
+        );
+    }
+
+    public static CardInfo getCardWithExpiredYear() {
+        return new CardInfo(
+                getAnyValidCardNumber(),
                 generateMonth(),
                 generateExpiredYear(),
                 generateHolder(),
-                generateCvv());
+                generateCvv()
+        );
+    }
+
+    public static CardInfo getCardWithWrongYear() {
+        return new CardInfo(
+                getAnyValidCardNumber(),
+                generateMonth(),
+                faker.letterify("??"),
+                generateHolder(),
+                generateCvv()
+        );
+    }
+
+    public static CardInfo getCardWithEmptyYear() {
+        return new CardInfo(
+                getAnyValidCardNumber(),
+                generateMonth(),
+                "",
+                generateHolder(),
+                generateCvv()
+        );
+    }
+
+    public static CardInfo getCardWithDigitsInHolder() {
+        return new CardInfo(
+                getAnyValidCardNumber(),
+                generateMonth(),
+                generateValidYear(),
+                generateHolder() + "123",
+                generateCvv()
+        );
+    }
+
+    public static CardInfo getCardWithSymbolsInHolder() {
+        return new CardInfo(
+                getAnyValidCardNumber(),
+                generateMonth(),
+                generateValidYear(),
+                generateHolder() + "!@^%",
+                generateCvv()
+        );
+    }
+
+    public static CardInfo getCardWithOneLetterHolder() {
+        return new CardInfo(
+                getAnyValidCardNumber(),
+                generateMonth(),
+                generateValidYear(),
+                faker.letterify("?"),
+                generateCvv()
+        );
+    }
+
+    public static CardInfo getCardWithEmptyHolder() {
+        return new CardInfo(
+                getAnyValidCardNumber(),
+                generateMonth(),
+                generateValidYear(),
+                "",
+                generateCvv()
+        );
+    }
+
+    public static CardInfo getCardWithCvv2Digits() {
+        return new CardInfo(
+                getAnyValidCardNumber(),
+                generateMonth(),
+                generateValidYear(),
+                generateHolder(),
+                faker.number().digits(2)
+        );
+    }
+
+    public static CardInfo getCardWithCvv4Digits() {
+        return new CardInfo(
+                getAnyValidCardNumber(),
+                generateMonth(),
+                generateValidYear(),
+                generateHolder(),
+                faker.number().digits(4)
+        );
+    }
+
+    public static CardInfo getCardWithLetterInCvv() {
+        return new CardInfo(
+                getAnyValidCardNumber(),
+                generateMonth(),
+                generateValidYear(),
+                generateHolder(),
+                faker.number().digits(2) + faker.letterify("?")
+        );
+    }
+
+    public static CardInfo getCardWithSymbolInCvv() {
+        return new CardInfo(
+                getAnyValidCardNumber(),
+                generateMonth(),
+                generateValidYear(),
+                generateHolder(),
+                faker.number().digits(2) + "@"
+        );
+    }
+
+    public static CardInfo getCardWithEmptyCvv() {
+        return new CardInfo(
+                getAnyValidCardNumber(),
+                generateMonth(),
+                generateValidYear(),
+                generateHolder(),
+                ""
+        );
     }
 }
