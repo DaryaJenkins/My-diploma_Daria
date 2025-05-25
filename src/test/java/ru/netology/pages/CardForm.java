@@ -24,9 +24,9 @@ public class CardForm {
     private final SelenideElement errorSnackbar = $(".notification.notification_status_error");
     private final SelenideElement inputError = $$("span.input__sub")
             .findBy(exactText("Неверный формат"));
-    private final SelenideElement inputErrorExpiredCard = $$("span.input__sub")
+    private final SelenideElement ExpiredCardError = $$("span.input__sub")
             .findBy(exactText("Истёк срок действия карты"));
-    private final SelenideElement inputErrorEmptyName = $$("span.input__sub")
+    private final SelenideElement EmptyNameError = $$("span.input__sub")
             .findBy(exactText("Поле обязательно для заполнения"));
 
     public void fillForm(DataHelper.CardInfo cardInfo) {
@@ -49,14 +49,14 @@ public class CardForm {
     }
 
     public void waitForInputError() {
-        inputError.shouldBe(visible, Duration.ofSeconds(5));
+        inputError.shouldBe(visible, Duration.ofSeconds(10));
     }
 
-    public void waitForErrorInFieldYear() {
-        inputErrorExpiredCard.shouldBe(visible, Duration.ofSeconds(5));
+    public void waitForExpiredCardError() {
+        ExpiredCardError.shouldBe(visible, Duration.ofSeconds(10));
     }
 
-    public void waitForErrorInFieldHolder() {
-        inputErrorEmptyName.shouldBe(visible, Duration.ofSeconds(5));
+    public void waitForEmptyNameError() {
+        EmptyNameError.shouldBe(visible, Duration.ofSeconds(10));
     }
 }

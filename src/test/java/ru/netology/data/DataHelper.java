@@ -69,6 +69,8 @@ public class DataHelper {
         return random.nextBoolean() ? "4444444444444441" : "4444444444444442";
     }
 
+    // ~ Валидация номера карты ~
+
     public static CardInfo getCardNumberWith15Digits() {
         return new CardInfo(
                 faker.number().digits(15),
@@ -119,7 +121,9 @@ public class DataHelper {
         );
     }
 
-    public static CardInfo getCardWithWrongMonth() {
+    // ~ Валидация полей «Месяц» и «Год» ~
+
+    public static CardInfo getCardWithInvalidMonth() {
         return new CardInfo(
                 getAnyValidCardNumber(),
                 faker.letterify("??"),
@@ -149,7 +153,7 @@ public class DataHelper {
         );
     }
 
-    public static CardInfo getCardWithWrongYear() {
+    public static CardInfo getCardWithInvalidYear() {
         return new CardInfo(
                 getAnyValidCardNumber(),
                 generateMonth(),
@@ -168,6 +172,8 @@ public class DataHelper {
                 generateCvv()
         );
     }
+
+    // ~ Валидация имени держателя карты ~
 
     public static CardInfo getCardWithDigitsInHolder() {
         return new CardInfo(
@@ -209,6 +215,8 @@ public class DataHelper {
         );
     }
 
+    // ~ Валидация CVV ~
+
     public static CardInfo getCardWithCvv2Digits() {
         return new CardInfo(
                 getAnyValidCardNumber(),
@@ -219,14 +227,23 @@ public class DataHelper {
         );
     }
 
-    public static CardInfo getCardWithCvv4Digits() {
+    public static CardInfo getApprovedCardWithCvv4Digits() {
         return new CardInfo(
-                getAnyValidCardNumber(),
+                "4444444444444441",
                 generateMonth(),
                 generateValidYear(),
                 generateHolder(),
                 faker.number().digits(4)
         );
+    }
+
+    public static CardInfo getDeclinedWithCvv4Digits() {
+        return new CardInfo(
+                "4444444444444442",
+                generateMonth(),
+                generateValidYear(),
+                generateHolder(),
+                faker.number().digits(4));
     }
 
     public static CardInfo getCardWithLetterInCvv() {
