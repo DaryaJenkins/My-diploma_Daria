@@ -1,11 +1,11 @@
 ### Процедура запуска автотестов
 
 Перед выполнением команды git clone на устройстве должны быть установлены:
-• IntelliJ IDEA
-• JDK 11
-• Gradle
-• Git
-• Docker Desktop
+- IntelliJ IDEA
+- JDK 11
+- Gradle
+- Git
+- Docker Desktop
 
 Шаги:
 1. Скопировать репозиторий на своё устройство с помощью команды git clone.
