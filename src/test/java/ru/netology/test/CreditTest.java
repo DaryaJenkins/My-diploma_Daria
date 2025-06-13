@@ -68,20 +68,14 @@ public class CreditTest {
         assertNull(getLatestCreditStatus());
     }
 
-    // Поле заполнится только 16 символами, но поскольку я генерирую случайный набор чисел в качестве номера карты, операция не будет одобрена банком.
     @Test
     void shouldDeclineRequestIfCardNumberHas17Digits() {
         var cardWith17Digits = DataHelper.getCardNumberWith17Digits();
         cardForm.fillForm(cardWith17Digits);
         cardForm.waitForErrorSnackbar();
 
-        /* Здесь тоже null, потому что тест упал с сообщением в консоли:
-        Expected: DECLINED
-        Actual: null
-        Предполагаю, что номер карты всё равно не прошёл валидацию на фронте, несмотря на то, что обрезался до 16 цифр.
-        */
-
-        assertNull(getLatestCreditStatus());
+        // Ожидаю, что запрос дойдёт до БД, и база данных вернёт отказ. Но запрос не доходит до БД.
+        assertEquals("DECLINED", getLatestCreditStatus());
     }
 
     @Test
@@ -210,19 +204,21 @@ public class CreditTest {
         assertNull(getLatestCreditStatus());
     }
 
-    /* Поле не примет 4 символа и оставит только 3 — оплата пройдёт, потому что введённый CVV будет валиден.
-    Я сделала две отдельные проверки: с картой, по которой платёж проходит, и с картой, по которой приходит отказ. */
+    /* При запуске автотеста и отправке запроса через Postman поле принимает значение из 4 символов,
+    несмотря на то, что в Elements стоит ограничение в 3 символа,
+    и возвращает 200 OK. */
+
     @Test
-    void shouldKeepOnly3CvvDigitsApprovedCard() {
+    void shouldDeclineRequestIfApprovedCardHasCvvWith4Digits() {
         var approvedCard4DigitsInCvv = DataHelper.getApprovedCardWithCvv4Digits();
         cardForm.fillForm(approvedCard4DigitsInCvv);
-        cardForm.waitForSuccessSnackbar();
+        cardForm.waitForErrorSnackbar();
 
-        assertEquals("APPROVED", getLatestCreditStatus());
+        assertEquals("DECLINED", getLatestCreditStatus());
     }
 
     @Test
-    void shouldKeepOnly3CvvDigitsDeclinedCard() {
+    void shouldDeclineRequestIfDeclinedCardHasCvvWith4Digits() {
         var declinedCard4DigitsInCvv = DataHelper.getDeclinedWithCvv4Digits();
         cardForm.fillForm(declinedCard4DigitsInCvv);
         cardForm.waitForErrorSnackbar();

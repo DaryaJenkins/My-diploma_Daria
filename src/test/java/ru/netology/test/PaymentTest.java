@@ -65,23 +65,17 @@ public class PaymentTest {
         cardForm.waitForInputError();
 
         // Статус null, потому что запрос не дойдёт до БД
-        assertNull(getLatestCreditStatus());
+        assertNull(getLatestPaymentStatus());
     }
 
-    // Поле заполнится только 16 символами, но поскольку я генерирую случайный набор чисел в качестве номера карты, операция не будет одобрена банком.
     @Test
     void shouldDeclinePaymentIfCardNumberHas17Digits() {
         var cardWith17Digits = DataHelper.getCardNumberWith17Digits();
         cardForm.fillForm(cardWith17Digits);
         cardForm.waitForErrorSnackbar();
 
-        /* Здесь тоже null, потому что тест упал с сообщением в консоли:
-        Expected: DECLINED
-        Actual: null
-        Предполагаю, что номер карты всё равно не прошёл валидацию на фронте, несмотря на то, что обрезался до 16 цифр.
-        */
-
-        assertNull(getLatestCreditStatus());
+        // Ожидаю, что запрос дойдёт до БД, и база данных вернёт отказ. Но запрос не доходит до БД.
+        assertEquals("DECLINED", getLatestPaymentStatus());
     }
 
     @Test
@@ -90,7 +84,7 @@ public class PaymentTest {
         cardForm.fillForm(cardWithLetters);
         cardForm.waitForInputError();
 
-        assertNull(getLatestCreditStatus());
+        assertNull(getLatestPaymentStatus());
     }
 
     @Test
@@ -99,7 +93,7 @@ public class PaymentTest {
         cardForm.fillForm(cardWithSymbols);
         cardForm.waitForInputError();
 
-        assertNull(getLatestCreditStatus());
+        assertNull(getLatestPaymentStatus());
     }
 
     @Test
@@ -108,7 +102,7 @@ public class PaymentTest {
         cardForm.fillForm(emptyCard);
         cardForm.waitForInputError();
 
-        assertNull(getLatestCreditStatus());
+        assertNull(getLatestPaymentStatus());
     }
 
     // ~ Валидация полей «Месяц» и «Год» ~
@@ -119,7 +113,7 @@ public class PaymentTest {
         cardForm.fillForm(cardWithInvalidMonth);
         cardForm.waitForInputError();
 
-        assertNull(getLatestCreditStatus());
+        assertNull(getLatestPaymentStatus());
     }
 
     @Test
@@ -128,7 +122,7 @@ public class PaymentTest {
         cardForm.fillForm(emptyMonth);
         cardForm.waitForInputError();
 
-        assertNull(getLatestCreditStatus());
+        assertNull(getLatestPaymentStatus());
     }
 
     @Test
@@ -137,7 +131,7 @@ public class PaymentTest {
         cardForm.fillForm(cardWithExpiredYear);
         cardForm.waitForExpiredCardError();
 
-        assertNull(getLatestCreditStatus());
+        assertNull(getLatestPaymentStatus());
     }
 
     @Test
@@ -146,7 +140,7 @@ public class PaymentTest {
         cardForm.fillForm(cardWithInvalidYear);
         cardForm.waitForInputError();
 
-        assertNull(getLatestCreditStatus());
+        assertNull(getLatestPaymentStatus());
     }
 
     @Test
@@ -155,7 +149,7 @@ public class PaymentTest {
         cardForm.fillForm(emptyYear);
         cardForm.waitForInputError();
 
-        assertNull(getLatestCreditStatus());
+        assertNull(getLatestPaymentStatus());
     }
 
     // ~ Валидация имени держателя карты ~
@@ -167,7 +161,7 @@ public class PaymentTest {
         cardForm.fillForm(holderWithDigits);
         cardForm.waitForInputError();
 
-        assertNull(getLatestCreditStatus());
+        assertNull(getLatestPaymentStatus());
     }
 
     // Поле принимает имя пользователя, содержащее символы, хотя не должно.
@@ -177,7 +171,7 @@ public class PaymentTest {
         cardForm.fillForm(holderWithSymbols);
         cardForm.waitForInputError();
 
-        assertNull(getLatestCreditStatus());
+        assertNull(getLatestPaymentStatus());
     }
 
     // Форма принимает один символ в поле «Владелец», что тоже неверно.
@@ -187,7 +181,7 @@ public class PaymentTest {
         cardForm.fillForm(nameWithOneLetter);
         cardForm.waitForInputError();
 
-        assertNull(getLatestCreditStatus());
+        assertNull(getLatestPaymentStatus());
     }
 
     @Test
@@ -196,7 +190,7 @@ public class PaymentTest {
         cardForm.fillForm(emptyName);
         cardForm.waitForEmptyNameError();
 
-        assertNull(getLatestCreditStatus());
+        assertNull(getLatestPaymentStatus());
     }
 
     // ~ Валидация CVV ~
@@ -207,22 +201,24 @@ public class PaymentTest {
         cardForm.fillForm(cvvWith2Digits);
         cardForm.waitForInputError();
 
-        assertNull(getLatestCreditStatus());
+        assertNull(getLatestPaymentStatus());
     }
 
-    /* Поле не примет 4 символа и оставит только 3 — оплата пройдёт, потому что введённый CVV будет валиден.
-    Я сделала две отдельные проверки: с картой, по которой платёж проходит, и с картой, по которой приходит отказ. */
+    /* При запуске автотеста и отправке запроса через Postman поле принимает значение из 4 символов,
+    несмотря на то, что в Elements стоит ограничение в 3 символа,
+    и возвращает 200 OK. */
+
     @Test
-    void shouldKeepOnly3CvvDigitsApprovedCard() {
+    void shouldDeclinePaymentIfApprovedCardHasCvvWith4Digits() {
         var approvedCard4DigitsInCvv = DataHelper.getApprovedCardWithCvv4Digits();
         cardForm.fillForm(approvedCard4DigitsInCvv);
-        cardForm.waitForSuccessSnackbar();
+        cardForm.waitForErrorSnackbar();
 
-        assertEquals("APPROVED", getLatestPaymentStatus());
+        assertEquals("DECLINED", getLatestPaymentStatus());
     }
 
     @Test
-    void shouldKeepOnly3CvvDigitsDeclinedCard() {
+    void shouldDeclinePaymentIfDeclinedCardHasCvvWith4Digits() {
         var declinedCard4DigitsInCvv = DataHelper.getDeclinedWithCvv4Digits();
         cardForm.fillForm(declinedCard4DigitsInCvv);
         cardForm.waitForErrorSnackbar();
@@ -236,7 +232,7 @@ public class PaymentTest {
         cardForm.fillForm(cvvWithLetters);
         cardForm.waitForInputError();
 
-        assertNull(getLatestCreditStatus());
+        assertNull(getLatestPaymentStatus());
     }
 
     @Test
@@ -245,7 +241,7 @@ public class PaymentTest {
         cardForm.fillForm(cvvWithSymbol);
         cardForm.waitForInputError();
 
-        assertNull(getLatestCreditStatus());
+        assertNull(getLatestPaymentStatus());
     }
 
     @Test
@@ -254,6 +250,6 @@ public class PaymentTest {
         cardForm.fillForm(emptyCvv);
         cardForm.waitForInputError();
 
-        assertNull(getLatestCreditStatus());
+        assertNull(getLatestPaymentStatus());
     }
 }
